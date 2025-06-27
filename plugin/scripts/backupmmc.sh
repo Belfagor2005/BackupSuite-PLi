@@ -25,11 +25,9 @@ PYVERSION=$(python -V 2>&1 | awk '{print $2}')
 case $PYVERSION in
 	2.*)
 		PYEXT=pyo
-		PYNAME=python
 		;;
 	3.*)
 		PYEXT=pyc
-		PYNAME=python3
 		;;
 esac
 if [ -z $PYVERSION ]; then
@@ -38,8 +36,14 @@ if [ -z $PYVERSION ]; then
 fi
 
 export LANG=$1
-export SHOW="$PYNAME $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
+export SHOW="python $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
 export HARDDISK=0
+
+# Messaggio di inizio backup
+echo -n $GREEN
+$SHOW "message44" 2>&1  # Backup started...
+echo -n $WHITE
+
 echo -n $YELLOW
 $SHOW "message43"   	#echo "Full back-up to the MultiMediaCard"
 FREESIZE_0=0
@@ -75,10 +79,27 @@ if [ -f /mmc/mmc-check ] ; then
 	fi
 	echo -n " -> /mmc -> $MEDIA ($TOTALSIZE, "; $SHOW "message16" ; echo "$FREESIZE)"
 	echo -n $WHITE
-  chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupdmm.sh > /dev/null 2>&1
-	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupdmm.sh /mmc
+	
+	# Messaggio di preparazione ambiente
+	echo -n $BLUE
+	$SHOW "message45" 2>&1  # Phase 1/3: Preparing backup environment
+	echo -n $WHITE
+	
+	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh > /dev/null 2>&1
+	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh /mmc
+	ret=$?
 	rm -f /mmc/mmc-check
 	sync
+	
+	# Messaggio di completamento
+	if [ $ret -eq 0 ]; then
+		echo -n $GREEN
+		$SHOW "message48" 2>&1  # Backup completed successfully!
+	else
+		echo -n $RED
+		$SHOW "message15" 2>&1  # Image creation FAILED!
+	fi
+	echo -n $WHITE
 else
 	for candidate in /dev/mmcblk0p1
 	do
@@ -114,9 +135,26 @@ else
 		FREESIZE_0="$(df -h $MEDIA | tail -n 1 | awk {'print $4'})"
 		echo -n " -> $MEDIA ($TOTALSIZE_0, "; $SHOW "message16" ; echo -n "$FREESIZE_0)"
 		echo -n $WHITE
-    chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupdmm.sh > /dev/null 2>&1
-		$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupdmm.sh $MEDIA
+		
+		# Messaggio di preparazione ambiente
+		echo -n $BLUE
+		$SHOW "message45" 2>&1  # Phase 1/3: Preparing backup environment
+		echo -n $WHITE
+		
+		chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh > /dev/null 2>&1
+		$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh $MEDIA
+		ret=$?
 		echo "$MMC_MOUNT" > /tmp/BackupSuite.log
 		sync
+		
+		# Messaggio di completamento
+		if [ $ret -eq 0 ]; then
+			echo -n $GREEN
+			$SHOW "message48" 2>&1  # Backup completed successfully!
+		else
+			echo -n $RED
+			$SHOW "message15" 2>&1  # Image creation FAILED!
+		fi
+		echo -n $WHITE
 	fi
 fi

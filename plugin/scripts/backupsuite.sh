@@ -30,11 +30,9 @@ PYVERSION=$(python -V 2>&1 | awk '{print $2}')
 case $PYVERSION in
 	2.*)
 		PYEXT=pyo
-		PYNAME=python
 		;;
 	3.*)
 		PYEXT=pyc
-		PYNAME=python3
 		;;
 esac
 if [ -z $PYVERSION ]; then
@@ -346,6 +344,11 @@ mount --bind / /tmp/bi/root # the complete root at /tmp/bi/root
 if [ -d /tmp/bi/root/var/lib/samba/private/msg.sock ] ; then
 	rm -rf /tmp/bi/root/var/lib/samba/private/msg.sock
 fi
+
+# Inizio del backup - Messaggio di progresso
+$SHOW "message44" 2>&1 | tee -a $LOGFILE   # Backup started...
+$SHOW "message45" 2>&1 | tee -a $LOGFILE   # Phase 1/3: Preparing backup environment
+
 ####################### START THE REAL BACK-UP PROCESS ########################
 ############################# MAKING UBINIZE.CFG ##############################
 if [ $ROOTNAME != "rootfs.tar.bz2" ] ; then
@@ -365,13 +368,15 @@ if [ $ROOTNAME != "rootfs.tar.bz2" ] ; then
 fi
 ############################## MAKING KERNELDUMP ##############################
 log $LINE
-$SHOW "message07" 2>&1 | tee -a $LOGFILE			# Create: kerneldump
+$SHOW "message46" 2>&1 | tee -a $LOGFILE   # Phase 2/3: Creating backup image
+$SHOW "message51" 2>&1 | tee -a $LOGFILE   # Dumping kernel (25%)
+$SHOW "message07" 2>&1 | tee -a $LOGFILE   # Create: kerneldump
 if [ $ROOTNAME != "rootfs.tar.bz2" -o $SEARCH = "h9" -o $SEARCH = "i55plus" -o $SEARCH = "i55se" -o $SEARCH = "hzero" -o $SEARCH = "h8" -o $SEARCH = "h8.2h" -o $SEARCH = "h9.s" -o $SEARCH = "h9.t" -o $SEARCH = "h9.2h" -o $SEARCH = "h9.2s" ] ; then
 	log "Kernel resides on $MTDPLACE" 					# Just for testing purposes
 	$NANDDUMP /dev/$MTDPLACE -qf "$WORKDIR/$KERNELNAME"
 	if [ -f "$WORKDIR/$KERNELNAME" ] ; then
 		echo -n "Kernel dumped  :"  >> $LOGFILE
-		ls $LS1 "$WORKDIR/$KERNELNAME" | sed 's/-r.*   1//' >> $LOGFILE
+		ls $LS1 "$WORKDIR/$KERNELNAME" | sed 's/-r.*    1//' >> $LOGFILE
 	else
 		log "$WORKDIR/$KERNELNAME NOT FOUND"
 		big_fail
@@ -381,7 +386,7 @@ else
 	if [ $SEARCH = "solo4k" -o $SEARCH = "vusolo4k" -o $SEARCH = "ultimo4k" -o $SEARCH = "vuultimo4k" -o $SEARCH = "uno4k" -o $SEARCH = "vuuno4k" -o $SEARCH = "uno4kse" -o $SEARCH = "vuuno4kse" -o $SEARCH = "lunix3-4k" -o $SEARCH = "lunix4k" -o $SEARCH = "galaxy4k" ] ; then
 		dd if=/dev/mmcblk0p1 of=$WORKDIR/$KERNELNAME
 		log "Kernel resides on /dev/mmcblk0p1"
-	elif [ $SEARCH = "h7" -o $SEARCH = "h17" -o $SEARCH = "hd51" -o $SEARCH = "vs1500" -o $SEARCH = "e4hd" ] ; then
+	elif [ $SEARCH = "h7" -o $SEARCH = "h17" -o $SEARCH = "hd51" -o $SEARCH = "vs1500" ] ; then
 		dd if=/dev/mmcblk0p2 of=$WORKDIR/$KERNELNAME
 		log "Kernel resides on /dev/mmcblk0p2"
 	elif [ $SEARCH = "osmini4k" -o $SEARCH = "osmio4k" -o $SEARCH = "osmio4kplus" ] ; then
@@ -390,22 +395,22 @@ else
 	elif [ $SEARCH = "sf4008" -o $SEARCH = "et11000" ] ; then
 		dd if=/dev/mmcblk0p3 of=$WORKDIR/$KERNELNAME
 		log "Kernel resides on /dev/mmcblk0p3"
-	elif [ $SEARCH = "zero4k" -o $SEARCH = "vuzero4k" -o $SEARCH = "gbquad4k" -o $SEARCH = "gbquad4kpro" -o $SEARCH = "gbue4k" -o $SEARCH = "gbx34k" ] ; then
+	elif [ $SEARCH = "zero4k" -o $SEARCH = "vuzero4k" -o $SEARCH = "gbquad4k" -o $SEARCH = "gbue4k" -o $SEARCH = "gbx34k" ] ; then
 		dd if=/dev/mmcblk0p4 of=$WORKDIR/$KERNELNAME
 		log "Kernel resides on /dev/mmcblk0p4"
 	elif [ $SEARCH = "duo4k" -o $SEARCH = "vuduo4k" -o $SEARCH = "duo4kse" -o $SEARCH = "vuduo4kse" ] ; then
 		dd if=/dev/mmcblk0p6 of=$WORKDIR/$KERNELNAME
 		log "Kernel resides on /dev/mmcblk0p6"
-	elif [ $SEARCH = "sf8008" -o $SEARCH = "sf8008m" -o $SEARCH = "ustym4kpro" -o $SEARCH = "ustym4ks2ottx" -o $SEARCH = "gbtrio4k" -o $SEARCH = "gbtrio4kpro" -o $SEARCH = "gbip4k" -o $SEARCH = "viper4k" -o $SEARCH = "beyonwizv2" ] ; then
+	elif [ $SEARCH = "sf8008" -o $SEARCH = "sf8008m" -o $SEARCH = "ustym4kpro" -o $SEARCH = "ustym4ks2ottx" -o $SEARCH = "gbtrio4k" -o $SEARCH = "gbip4k" -o $SEARCH = "viper4k" -o $SEARCH = "beyonwizv2" ] ; then
 		dd if=/dev/mmcblk0p12 of=$WORKDIR/$KERNELNAME
 		log "Kernel resides on /dev/mmcblk0p12"
-	elif [ $SEARCH = "hd60" -o $SEARCH = "hd61" -o $SEARCH = "hd66se" -o $SEARCH = "h9se" -o $SEARCH = "h9combo" -o $SEARCH = "h9twin" -o $SEARCH = "h9combose" -o $SEARCH = "h9twinse" -o $SEARCH = "h10" -o $SEARCH = "h11" -o $SEARCH = "pulse4k" -o $SEARCH = "pulse4kmini" -o $SEARCH = "multibox" -o $SEARCH = "multiboxse" -o $SEARCH = "dual" -o $SEARCH = "sx88v2" -o $SEARCH = "sfx6008" ] ; then
+	elif [ $SEARCH = "hd60" -o $SEARCH = "hd61" -o $SEARCH = "hd66se" -o $SEARCH = "h9se" -o $SEARCH = "h9combo" -o $SEARCH = "h9twin" -o $SEARCH = "h9combose" -o $SEARCH = "h9twinse" -o $SEARCH = "h10" -o $SEARCH = "h11" -o $SEARCH = "pulse4k" -o $SEARCH = "pulse4kmini" -o $SEARCH = "multibox" -o $SEARCH = "multiboxse" -o $SEARCH = "dual" -o $SEARCH = "sx88v2" ] ; then
 		$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/findkerneldevice.sh
 		KERNEL=`readlink -n /dev/kernel`
 		log "Kernel resides on $KERNEL"
 		dd if=/dev/kernel of=$WORKDIR/$KERNELNAME > /dev/null 2>&1
 	else
-		$PYNAME $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/findkerneldevice.$PYEXT
+		python $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/findkerneldevice.$PYEXT
 		KERNEL=`cat /sys/firmware/devicetree/base/chosen/kerneldev`
 		KERNELNAME=${KERNEL:11:7}.bin
 		echo "$KERNELNAME = STARTUP_${KERNEL:17:1}"
@@ -414,13 +419,14 @@ else
 	fi
 fi
 #############################  MAKING ROOT.UBI(FS) ############################
-$SHOW "message06a" 2>&1 | tee -a $LOGFILE		#Create: root.ubifs
+$SHOW "message52" 2>&1 | tee -a $LOGFILE   # Creating root filesystem (50%)
+$SHOW "message06a" 2>&1 | tee -a $LOGFILE   # Create: root.ubifs
 log $LINE
 if [ $ROOTNAME != "rootfs.tar.bz2" ] ; then
 	$MKFS -r /tmp/bi/root -o "$WORKDIR/root.ubi" $MKUBIFS_ARGS
 	if [ -f "$WORKDIR/root.ubi" ] ; then
 		echo -n "ROOT.UBI MADE  :" >> $LOGFILE
-		ls $LS1 "$WORKDIR/root.ubi" | sed 's/-r.*   1//' >> $LOGFILE
+		ls $LS1 "$WORKDIR/root.ubi" | sed 's/-r.*    1//' >> $LOGFILE
 		UBISIZE=`cat "$WORKDIR/root.ubi" | wc -c`
 		if [ "$UBISIZE" -eq 0 ] ; then
 			$SHOW "message39" 2>&1 | tee -a $LOGFILE
@@ -431,12 +437,13 @@ if [ $ROOTNAME != "rootfs.tar.bz2" ] ; then
 		big_fail
 	fi
 	log $LINE
+	$SHOW "message53" 2>&1 | tee -a $LOGFILE   # Assembling image (75%)
 	echo "Start UBINIZING" >> $LOGFILE
 	$UBINIZE -o "$WORKDIR/$ROOTNAME" $UBINIZE_ARGS "$WORKDIR/ubinize.cfg" >/dev/null
 	chmod 644 "$WORKDIR/$ROOTNAME"
 	if [ -f "$WORKDIR/$ROOTNAME" ] ; then
 		echo -n "$ROOTNAME MADE:" >> $LOGFILE
-		ls $LS1 "$WORKDIR/$ROOTNAME" | sed 's/-r.*   1//' >> $LOGFILE
+		ls $LS1 "$WORKDIR/$ROOTNAME" | sed 's/-r.*    1//' >> $LOGFILE
 	else
 		echo "$WORKDIR/$ROOTNAME NOT FOUND"  >> $LOGFILE
 		big_fail
@@ -451,6 +458,7 @@ else
 	$BZIP2 $WORKDIR/rootfs.tar
 fi
 ############################ ASSEMBLING THE IMAGE #############################
+$SHOW "message47" 2>&1 | tee -a $LOGFILE   # Phase 3/3: Finalizing backup
 make_folders
 mv "$WORKDIR/$ROOTNAME" "$MAINDEST/$ROOTNAME"
 mv "$WORKDIR/$KERNELNAME" "$MAINDEST/$KERNELNAME"
@@ -521,6 +529,7 @@ if  [ $HARDDISK = 1 ]; then						# looking for a valid usb-stick
 	if [ "$TARGET" != "XX" ] ; then
 		echo -n $GREEN
 		$SHOW "message17" 2>&1 | tee -a $LOGFILE 	# Valid USB-flashdrive detected, making an extra copy
+		$SHOW "message54" 2>&1 | tee -a $LOGFILE   # Making extra copy (90%)
 		echo $LINE
 		TOTALSIZE="$(df -h "$TARGET" | tail -n 1 | awk {'print $2'})"
 		FREESIZE="$(df -h "$TARGET" | tail -n 1 | awk {'print $4'})"
@@ -541,7 +550,9 @@ sync
 fi
 ######################### END OF EXTRA BACKUP STORAGE #########################
 ################## CLEANING UP AND REPORTING SOME STATISTICS ##################
+$SHOW "message55" 2>&1 | tee -a $LOGFILE   # Finalizing (95%)
 clean_up
+$SHOW "message56" 2>&1 | tee -a $LOGFILE   # Backup complete (100%)
 END=$(date +%s)
 DIFF=$(( $END - $START ))
 MINUTES=$(( $DIFF/60 ))

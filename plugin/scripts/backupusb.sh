@@ -1,4 +1,5 @@
 #!/bin/sh
+
 if tty > /dev/null ; then
    RED='-e \e[00;31m'
    GREEN='-e \e[00;32m'
@@ -25,11 +26,9 @@ PYVERSION=$(python -V 2>&1 | awk '{print $2}')
 case $PYVERSION in
 	2.*)
 		PYEXT=pyo
-		PYNAME=python
 		;;
 	3.*)
 		PYEXT=pyc
-		PYNAME=python3
 		;;
 esac
 if [ -z $PYVERSION ]; then
@@ -39,10 +38,16 @@ fi
 
 export LANG=$1
 export HARDDISK=0
-export SHOW="$PYNAME $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
+export SHOW="python $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
 TARGET="XX"
 USEDSIZE=`df -k /usr/ | grep [0-9]% | tr -s " " | cut -d " " -f 3` # size of rootfs
 NEEDEDSPACE=$(((4*$USEDSIZE)/1024))
+
+# Messaggio di inizio backup
+echo -n $GREEN
+$SHOW "message44" 2>&1  # Backup started...
+echo -n $WHITE
+
 for candidate in `cut -d ' ' -f 2 /proc/mounts | grep '^/media/'`
 do
 	if [ -f "${candidate}/"*[Bb][Aa][Cc][Kk][Uu][Pp][Ss][Tt][Ii][Cc][Kk]* ] || [ -d "${candidate}/"*[Bb][Aa][Cc][Kk][Uu][Pp][Ss][Tt][Ii][Cc][Kk]* ] 
@@ -71,7 +76,24 @@ else
 		echo $WHITE
 		exit 0
 	fi
-	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh > /dev/null 2>&1
-	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh "$TARGET" 
+	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh > /dev/null 2>&1
+	
+	# Messaggio di preparazione ambiente
+	echo -n $BLUE
+	$SHOW "message45" 2>&1  # Phase 1/3: Preparing backup environment
+	echo -n $WHITE
+	
+	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh "$TARGET" 
+	ret=$?
 	sync
+	
+	# Messaggio di completamento
+	if [ $ret -eq 0 ]; then
+		echo -n $GREEN
+		$SHOW "message48" 2>&1  # Backup completed successfully!
+	else
+		echo -n $RED
+		$SHOW "message15" 2>&1  # Image creation FAILED!
+	fi
+	echo -n $WHITE
 fi

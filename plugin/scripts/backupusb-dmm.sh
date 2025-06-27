@@ -25,11 +25,9 @@ PYVERSION=$(python -V 2>&1 | awk '{print $2}')
 case $PYVERSION in
 	2.*)
 		PYEXT=pyo
-		PYNAME=python
 		;;
 	3.*)
 		PYEXT=pyc
-		PYNAME=python3
 		;;
 esac
 if [ -z $PYVERSION ]; then
@@ -39,7 +37,7 @@ fi
 
 export LANG=$1
 export HARDDISK=0
-export SHOW="$PYNAME $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
+export SHOW="python $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
 TARGET="XX"
 USEDSIZE=`df -k /usr/ | grep [0-9]% | tr -s " " | cut -d " " -f 3` # size of rootfs
 NEEDEDSPACE=$(((4*$USEDSIZE)/1024))
@@ -71,7 +69,7 @@ else
 		echo $WHITE
 		exit 0
 	fi
-	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupdmm.sh > /dev/null 2>&1
-	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupdmm.sh "$TARGET" 
+	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupdmm.sh > /dev/null 2>&1
+	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupdmm.sh "$TARGET" 
 	sync
 fi

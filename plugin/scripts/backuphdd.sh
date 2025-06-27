@@ -41,7 +41,7 @@ export LANG=$1
 export SHOW="$PYNAME $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
 export HARDDISK=1
 echo -n $YELLOW
-$SHOW "message20"   	#echo "Full back-up to the harddisk"
+$SHOW "message20"   	# echo "Full back-up to the harddisk"
 FREESIZE_0=0				
 TOTALSIZE_0=0
 MEDIA=0
@@ -75,8 +75,8 @@ if [ -f /hdd/hdd-check ] ; then
 	fi
 	echo -n " -> /hdd -> $MEDIA ($TOTALSIZE, "; $SHOW "message16" ; echo "$FREESIZE)"
 	echo -n $WHITE
-	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh > /dev/null 2>&1
-	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh /hdd
+	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh > /dev/null 2>&1
+	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh /hdd
 	rm -f /hdd/hdd-check
 	sync
 else
@@ -106,7 +106,7 @@ else
 	done
 	if  [ $MEDIA = "0" ] ; then
 		echo -n $RED
-		$SHOW "message15"  #echo "No suitable media found"
+		$SHOW "message15"  # echo "No suitable media found"
 		echo -n $WHITE
 		exit 0
 	else
@@ -114,8 +114,8 @@ else
 		FREESIZE_0="$(df -h $MEDIA | tail -n 1 | awk {'print $4'})"
 		echo -n " -> $MEDIA ($TOTALSIZE_0, "; $SHOW "message16" ; echo -n "$FREESIZE_0)"
 		echo -n $WHITE
-		chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh > /dev/null 2>&1
-		$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh $MEDIA 
+		chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh > /dev/null 2>&1
+		$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupsuite.sh $MEDIA 
 		echo "$HDD_MOUNT" > /tmp/BackupSuite.log
 		sync
 	fi

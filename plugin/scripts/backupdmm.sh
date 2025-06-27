@@ -758,7 +758,7 @@ fi
 #
 /usr/bin/python -c "
 data=open('$SECSTAGE', 'rb').read()
-cutoff=data.find(b'\xff\xff\xff\xff')
+cutoff=data.find('\xff\xff\xff\xff')
 if cutoff:
     open('$SECSTAGE', 'wb').write(data[0:cutoff])
 "
@@ -776,7 +776,7 @@ fi
 #
 log "Exporting boot partition"
 mkdir -p "$TBI/boot"
-mount -t jffs2 /dev/mtdblock2 "$TBI/boot"
+mount -t jffs2 /dev/mtdblock/2 "$TBI/boot"
 /usr/sbin/mkfs.jffs2 \
    --root="$TBI/boot" \
    --compression-mode=none \

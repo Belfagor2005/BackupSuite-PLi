@@ -25,11 +25,9 @@ PYVERSION=$(python -V 2>&1 | awk '{print $2}')
 case $PYVERSION in
 	2.*)
 		PYEXT=pyo
-		PYNAME=python
 		;;
 	3.*)
 		PYEXT=pyc
-		PYNAME=python3
 		;;
 esac
 if [ -z $PYVERSION ]; then
@@ -38,7 +36,7 @@ if [ -z $PYVERSION ]; then
 fi
 
 export LANG=$1
-export SHOW="$PYNAME $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
+export SHOW="python $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/message.$PYEXT $LANG"
 export HARDDISK=0
 echo -n $YELLOW
 $SHOW "message43"   	#echo "Full back-up to the MultiMediaCard"
@@ -75,8 +73,8 @@ if [ -f /mmc/mmc-check ] ; then
 	fi
 	echo -n " -> /mmc -> $MEDIA ($TOTALSIZE, "; $SHOW "message16" ; echo "$FREESIZE)"
 	echo -n $WHITE
-	chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh > /dev/null 2>&1
-	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh /mmc
+  chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupdmm.sh > /dev/null 2>&1
+	$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupdmm.sh /mmc
 	rm -f /mmc/mmc-check
 	sync
 else
@@ -114,8 +112,8 @@ else
 		FREESIZE_0="$(df -h $MEDIA | tail -n 1 | awk {'print $4'})"
 		echo -n " -> $MEDIA ($TOTALSIZE_0, "; $SHOW "message16" ; echo -n "$FREESIZE_0)"
 		echo -n $WHITE
-		chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh > /dev/null 2>&1
-		$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/backupsuite.sh $MEDIA
+    chmod 755 $LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupdmm.sh > /dev/null 2>&1
+		$LIBDIR/enigma2/python/Plugins/Extensions/BackupSuite/scripts/backupdmm.sh $MEDIA
 		echo "$MMC_MOUNT" > /tmp/BackupSuite.log
 		sync
 	fi
